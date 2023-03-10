@@ -5,22 +5,86 @@ import ElementList from "./ElementList.jsx";
 
 import "../../styles/todoList.css";
 
-const arr = [{id: 0, label: "Eat"},{id: 1, label: "Drink"}];
 
-let contador = 2;
+// let contador = 0;
+// {id: 0, label: "Example Task Create", done: false}
 
-const TodoList = () => {
+const TodoList = (props) => {
   const [value, setValue] = useState("");
-  const [estado, setEstado] = useState(arr);
+  const [estado, setEstado] = useState([{label: "Example Task Create", done: false}]);
+
+  //ESTA FUNCION SOLO HAY QUE EJECUTARLA 1 VEZ, LA PRIMERA VEZ PARA CREAR EL USUARIO
+  // POR ESO LO HACEMOS CON USEEFFECT
+  function crearUsuario () {
+    fetch('https://assets.breatheco.de/apis/fake/todos/user/guilleJFG', {
+      method: "POST",
+      body: JSON.stringify(estado),
+      headers: {
+        "Content-Type": "application/json",
+      }
+    })
+    .then((resp) => {
+      console.log(resp.ok); // will be true if the response is successfull
+      console.log(resp.status); // the status code = 200 or code = 400 etc.
+      console.log(resp.text()); // will try return the exact result as string
+      return resp; //(returns promise) will try to parse the result as json as return a promise that you can .then for results
+    })
+    .then((data) => {
+      //here is were your code should start after the fetch finishes
+      console.log(data); //this will print on the console the exact object received from the server
+    })
+    .catch(error => {console.log(error);});  //Error handling
+  }
+
+  // COMO EL USUARIO CON ESE NOMBRE YA HE CONSEGUIDO CREARLO YA NO HACE FALTA USARLA MAS VECES
+  useEffect(() => {crearUsuario()},[]);
+
+  function getUSers () {
+    fetch('https://assets.breatheco.de/apis/fake/todos/user/guilleJFG', {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(resp => {
+        console.log(resp.ok); // will be true if the response is successfull
+        console.log(resp.status); // the status code = 200 or code = 400 etc.
+        return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
+    })
+    .then(data => {
+        setEstado(data);
+        console.log(data); //this will print on the console the exact object received from the server
+    })
+    .catch(error => {console.log(error);});  //Error handling
+  }
+
+  // useEffect(() => {getUSers()},[]);
 
   function addTasks (value) {
-    setEstado( prev => {
-      contador += 1;
-        const newObj = {id: contador, label: value};
-        const newArr = [...prev,newObj];
-        return newArr;
-    })
+
+    const newObj = {label: value, done: false};
+    const newArr = [...estado,newObj];
+
+    fetch('https://assets.breatheco.de/apis/fake/todos/user/guilleJFG', {
+        method: "PUT",
+        body: JSON.stringify(newArr),
+        headers: {
+          "Content-Type": "application/json"
+      }
+      })
+      .then(resp => {
+          console.log(resp.ok); // will be true if the response is successfull
+          console.log(resp.status); // the status code = 200 or code = 400 etc.
+          return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
+      })
+      .then(data => {
+          //here is were your code should start after the fetch finishes
+          console.log(data); //this will print on the console the exact object received from the server
+          getUSers();
+      })
+      .catch(error => {console.log(error);});  //Error handling
   }
+
 
   const handleKeyDown = (e) => {
     if(e.key === 'Enter'){
@@ -32,12 +96,34 @@ const TodoList = () => {
     }
   }
 
+
   const handleClickSpan = (elemento) => {
-    setEstado( prev => {
-      const newArr2 = prev.filter((item) => item.id != elemento)
-      return newArr2;
+
+    console.log(elemento);
+    console.log(estado);
+
+    const newArr2 = estado.filter((item) => item != elemento)
+
+    fetch('https://assets.breatheco.de/apis/fake/todos/user/guilleJFG', {
+        method: "PUT",
+        body: JSON.stringify(newArr2),
+        headers: {
+          "Content-Type": "application/json"
+        }
     })
+    .then(resp => {
+        console.log(resp.ok); // will be true if the response is successfull
+        console.log(resp.status); // the status code = 200 or code = 400 etc.
+        return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
+    })
+    .then(data => {
+        //here is were your code should start after the fetch finishes
+        console.log(data); //this will print on the console the exact object received from the server
+        getUSers();
+    })
+    .catch(error => {console.log(error);});  //Error handling
   }
+
 
   return (
     <div id="container">
@@ -51,8 +137,8 @@ const TodoList = () => {
         onKeyDown={e => handleKeyDown(e)}
       />
       <ul>
-        {estado.map((item)=>(
-            <ElementList key={item.id} elemento={item} handleClickSpan={handleClickSpan}/>
+        {estado.map((item, index)=>(
+            <ElementList key={index} elemento={item} handleClickSpan={handleClickSpan}/>
         ))}
       </ul>
       <div className="todo-bottom"> {(estado.length) ? ((estado.length > 1) ? `${estado.length} items left` : `${estado.length} item left`) : "No tasks! Add a new task!"}</div>
@@ -61,6 +147,7 @@ const TodoList = () => {
 };
 
 export default TodoList;
+
 
 // SIEMPRE USAR ID UNICAS, INDEX NO ES EL MEJOR CASO
 // <ElementList key={index} elemento={item} handleClickSpan={handleClickSpan}/> 
