@@ -6,14 +6,11 @@ import ElementList from "./ElementList.jsx";
 import "../../styles/todoList.css";
 
 
-// let contador = 0;
-// {id: 0, label: "Example Task Create", done: false}
-
 const TodoList = () => {
   const [value, setValue] = useState("");
-  const [estado, setEstado] = useState([{label: "Example Task Create", done: false}]);
+  const [estado, setEstado] = useState([]);
 
-  //ESTA FUNCION SOLO HAY QUE EJECUTARLA 1 VEZ, LA PRIMERA VEZ PARA CREAR EL USUARIO
+  // ESTA FUNCION SOLO HAY QUE EJECUTARLA 1 VEZ, LA PRIMERA VEZ PARA CREAR EL USUARIO
   // POR ESO LO HACEMOS CON USEEFFECT
   function crearUsuario () {
     fetch('https://assets.breatheco.de/apis/fake/todos/user/guilleJFG', {
@@ -25,13 +22,11 @@ const TodoList = () => {
     })
     .then((resp) => {
       console.log(resp.ok); // will be true if the response is successfull
-      console.log(resp.status); // the status code = 200 or code = 400 etc.
-      console.log(resp.text()); // will try return the exact result as string
       return resp; //(returns promise) will try to parse the result as json as return a promise that you can .then for results
     })
     .then((data) => {
       //here is were your code should start after the fetch finishes
-      console.log(data); //this will print on the console the exact object received from the server
+      getUSers();
     })
     .catch(error => {console.log(error);});  //Error handling
   }
@@ -48,17 +43,15 @@ const TodoList = () => {
     })
     .then(resp => {
         console.log(resp.ok); // will be true if the response is successfull
-        console.log(resp.status); // the status code = 200 or code = 400 etc.
         return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
     })
     .then(data => {
-        console.log(data); //this will print on the console the exact object received from the server
         setEstado(data);
     })
     .catch(error => {console.log(error);});  //Error handling
   }
 
-  useEffect(() => {getUSers()},[]);
+  // useEffect(() => {getUSers()},[]);
 
   function addTasks (value) {
 
@@ -73,7 +66,6 @@ const TodoList = () => {
       }
       })
       .then(resp => {
-          console.log(resp.ok); // will be true if the response is successfull
           console.log(resp.status); // the status code = 200 or code = 400 etc.
           return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
       })
@@ -99,7 +91,8 @@ const TodoList = () => {
 
   const handleClickSpan = (elemento) => {
 
-    const newArr2 = estado.filter((item) => item != elemento)
+    const newArr2 = estado.filter((item) => item != elemento);
+    setEstado(newArr2);
 
     fetch('https://assets.breatheco.de/apis/fake/todos/user/guilleJFG', {
         method: "PUT",
@@ -109,14 +102,12 @@ const TodoList = () => {
         }
     })
     .then(resp => {
-        console.log(resp.ok); // will be true if the response is successfull
         console.log(resp.status); // the status code = 200 or code = 400 etc.
         return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
     })
     .then(data => {
         //here is were your code should start after the fetch finishes
         console.log(data); //this will print on the console the exact object received from the server
-        getUSers();
     })
     .catch(error => {console.log(error);});  //Error handling
   }
@@ -145,6 +136,9 @@ const TodoList = () => {
 
 export default TodoList;
 
+
+// SIN IDs UNICAS Y CON BORRADO DE RUTAS YA QUE SON OBJETOS
+// const newArr2 = estado.filter((item) => item != elemento)
 
 // SIEMPRE USAR ID UNICAS, INDEX NO ES EL MEJOR CASO
 // <ElementList key={index} elemento={item} handleClickSpan={handleClickSpan}/> 
