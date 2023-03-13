@@ -9,7 +9,7 @@ import "../../styles/todoList.css";
 // let contador = 0;
 // {id: 0, label: "Example Task Create", done: false}
 
-const TodoList = (props) => {
+const TodoList = () => {
   const [value, setValue] = useState("");
   const [estado, setEstado] = useState([{label: "Example Task Create", done: false}]);
 
@@ -36,7 +36,7 @@ const TodoList = (props) => {
     .catch(error => {console.log(error);});  //Error handling
   }
 
-  // COMO EL USUARIO CON ESE NOMBRE YA HE CONSEGUIDO CREARLO YA NO HACE FALTA USARLA MAS VECES
+  // CUANDO EL USUARIO CON ESE NOMBRE YA ESTÉ CREADO, YA NO HACE FALTA USARLA MAS VECES
   useEffect(() => {crearUsuario()},[]);
 
   function getUSers () {
@@ -52,13 +52,13 @@ const TodoList = (props) => {
         return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
     })
     .then(data => {
-        setEstado(data);
         console.log(data); //this will print on the console the exact object received from the server
+        setEstado(data);
     })
     .catch(error => {console.log(error);});  //Error handling
   }
 
-  // useEffect(() => {getUSers()},[]);
+  useEffect(() => {getUSers()},[]);
 
   function addTasks (value) {
 
@@ -98,9 +98,6 @@ const TodoList = (props) => {
 
 
   const handleClickSpan = (elemento) => {
-
-    console.log(elemento);
-    console.log(estado);
 
     const newArr2 = estado.filter((item) => item != elemento)
 
